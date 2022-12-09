@@ -1,0 +1,35 @@
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+bool Motor_Flag;
+
+int main()
+{   int fd0 = open("/dev/servo0", O_WRONLY);
+    char ledOn = '1', ledOff = '0';
+    if(Motor_Flag == true)
+    {
+        while()
+        {
+            if ()
+            {
+                /* code */
+            }
+            
+            write(fd0, &ledOn, 1);
+            printf("\non!");
+            sleep(4);
+       
+            write(fd0, &ledOff, 1);
+            printf("\noff!");
+            sleep(4);
+            count++;
+        }
+    }else
+    {
+        
+    }
+    
+}
