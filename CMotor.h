@@ -11,7 +11,11 @@
 class CMotor
 {
 public:
-    ~CMotor();
+    // ~CMotor();
+    CMotor()
+    {
+        Motor_Status = false;
+    }
     void InitMotor();
     void RemMotor();
     void StartMotor();
