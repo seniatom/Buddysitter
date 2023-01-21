@@ -50,7 +50,7 @@ ssize_t servo_read(struct file *pfile, char __user *p_buff,size_t len, loff_t *p
 	uint8_t gpio_state = 0;
   
   //reading GPIO value
-	gpio_state = gpio_get_value(GPIO_21);
+	gpio_state = gpio_get_value(GPIO_18);
   
   //write to user
 	len = 1;
@@ -58,7 +58,7 @@ ssize_t servo_read(struct file *pfile, char __user *p_buff,size_t len, loff_t *p
 		pr_err("ERROR: Not all the bytes have been copied to user\n");
 	}
   
-	pr_info("Read function : GPIO_21 = %d \n", gpio_state);
+	pr_info("Read function : GPIO_18 = %d \n", gpio_state);
   
 	return 0;
 }
@@ -127,9 +127,8 @@ static int __init servoModule_init(void) {
 
 
 	s_pGpioRegisters = (struct GpioRegisters *)ioremap(GPIO_BASE, sizeof(struct GpioRegisters));
-	//s_pGpioRegisters = (struct GpioRegisters *)ioremap_nocache(GPIO_BASE, sizeof(struct GpioRegisters));
 	
-	pr_alert("map to virtual adresse: 0x%x\n", (unsigned)s_pGpioRegisters);
+	pr_alert("map to virtual address: 0x%x\n", (unsigned)s_pGpioRegisters);
 	
 	SetGPIOFunction(s_pGpioRegisters, LedGpioPin, 0b001); //Output
 
