@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
-#include <cstring>
 #include <unistd.h> 
 #include <sys/wait.h>
 

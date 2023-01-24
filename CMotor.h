@@ -4,18 +4,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
-#include <cstring>
 #include <unistd.h> 
 #include <sys/wait.h>
 
 class CMotor
 {
 public:
-    // ~CMotor();
-    CMotor()
-    {
-        Motor_Status = false;
-    }
+    ~CMotor();
     void InitMotor();
     void RemMotor();
     void StartMotor();
