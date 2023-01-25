@@ -10,6 +10,9 @@
 #include <iostream>
 #include <signal.h>
 #include <syslog.h>
+#include <fstream>
+
+using namespace std;
 
 #include "CScheduling.h"
 #include "CDatabaseHandler.h"
@@ -44,8 +47,14 @@ CMotor motor;
 CSpeaker speaker;
 CWeightSensor scale;
 
+char userId[30]; //= "YW7b3hkFsaTo7qfU5gZ5tyHJ85v2";
+char customId[] = "mainId";
+
 void SetupThread(int prio,pthread_attr_t *pthread_attr,struct sched_param *pthread_param);
 void CheckFail(int status);
+string ReadFile();
+void WriteFile(string id);
+
 
 void signal_handler(int sig) {
 switch(sig) {
@@ -63,6 +72,7 @@ void *tStartupSystem (void *)
     {
         //maybe do scale calibratioN ?
     }
+
 	return NULL;
 }
 
@@ -70,7 +80,11 @@ void *tChangeWifi (void *arg)
 {
     while(1)
     {
-
+        if(change_wifi_flag == true)
+        {
+            WriteFile("0");
+            exit(1);
+        }
     }
 	return NULL;
 }
@@ -98,10 +112,12 @@ void *tStartStopStreaming (void *arg)
         if(streaming_flag == true && stream.StreamStatus() == false)
         {
             stream.StartStreaming();
+            printf("start streaming\n");
         }
         else if(streaming_flag == false && stream.StreamStatus() == true)
         {
             stream.StopStreaming();
+            printf("stop streaming\n");
         }
     }
 	return NULL;
@@ -115,29 +131,31 @@ void *tStartStopMotor (void *arg)
         {
             printf("starting motor");
             motor.StartMotor();
+            printf("start motor\n");
         }
         else if(motor_flag == false && motor.MotorStatus() == true)
         {
             motor.StopMotor();
+            printf("stop motor\n");
         }
     }
 	return NULL;
 }
 
-void *tFlagCheck (void *arg)
+void *tFlagCheck (void *arg) //Updates flags from database
 {
 	while(1)
     {
         pthread_mutex_lock(&streaming_flag_m);
-        dbhandler.GetStreamingFlag(&streaming_flag);
+        streaming_flag = dbhandler.GetStreamingFlag();
         pthread_mutex_unlock(&streaming_flag_m);
 
         pthread_mutex_lock(&speaker_flag_m);
-        dbhandler.GetStreamingFlag(&speaker_flag);
+        speaker_flag = dbhandler.GetStreamingFlag();
         pthread_mutex_unlock(&speaker_flag_m);
 
         pthread_mutex_lock(&change_wifi_flag_m);
-        dbhandler.GetStreamingFlag(&change_wifi_flag);
+        change_wifi_flag = dbhandler.GetStreamingFlag();
         pthread_mutex_unlock(&change_wifi_flag_m);
 
         sleep(1); 
@@ -146,21 +164,19 @@ void *tFlagCheck (void *arg)
 }
 
 
-void *tFeedingStatus (void *arg)
+void *tFeedingStatus (void *arg) //Checks for messages in msqueue
 {
     while(1)
     {
-        if(scheduling.MsgQueueRecieve() == true)
+        if(scheduling.MsgQueueRecieve() == true) //Checks for messages in mqueue
         {
-            // weight value should come from database (read from file for now?)
-            target_weight = 5;
-
+            target_weight = scheduling.GetWeight(); //loads weight_aux with desired weight
             printf("weight: %d\n",target_weight);
         
-            pthread_mutex_lock(&motor_flag_m);
+            pthread_mutex_lock(&motor_flag_m); 
             motor_flag = true;
-            printf("motor_flag = true\n");
-            pthread_cond_wait(&weight_cond, &motor_flag_m);
+            printf("motor_flag = true\n"); 
+            pthread_cond_wait(&weight_cond, &motor_flag_m); //waits for the desired weight
             motor_flag = false;
             printf("motor_flag = false\n");
             pthread_mutex_unlock(&motor_flag_m);
@@ -178,7 +194,7 @@ void *tCheckWeight (void *arg)
         current_weight = scale.readWeightSensor();
         if(current_weight > target_weight && motor_flag == true)
         {
-            pthread_cond_signal(&weight_cond);
+            pthread_cond_signal(&weight_cond); //unBlocks FeedingStatus if weight achieved
         }
         pthread_mutex_unlock(&weight_m);
         sleep(1);
@@ -194,6 +210,31 @@ int main (int argc, char *argv[])
 
 	pthread_attr_t thread_attr;
 	struct sched_param thread_param;
+	
+    //setenv("PYTHONPATH","/home/hugo/Visual_Studio_Code/python", 1);
+    setenv("PYTHONPATH","/etc/python_code", 1);
+
+    if(ReadFile() == "0")
+    {
+        char id[30];
+        //bluetooth implementation
+        WriteFile(id);
+        strcpy(userId,id);
+    }else{
+        ReadFile().copy(userId,29,0);
+        printf("User Id: %s\n", userId);
+    }
+
+    if(!dbhandler.FirebaseInit())
+    {
+        printf("init error");
+        return 0;
+    }
+    if(!dbhandler.LoginUser(userId,customId))
+    {
+        printf("login error");
+        return 0;
+    }
 
     system("./dScheduledTimes");
 
@@ -270,4 +311,26 @@ void CheckFail(int status)
     		perror("pthread_create()");
     		exit(1);
   	}
+}
+
+string ReadFile()
+{
+    string text;
+    char* string;
+    fstream MyReadFile("Paired_Status");
+    getline(MyReadFile,text);
+    MyReadFile.close();
+
+    return text;
+}
+
+void WriteFile(string id)
+{
+    string text;
+    char* string;
+    fstream MyReadFile("Paired_Status");
+    MyReadFile << id;
+    MyReadFile.close();
+    
+    return;
 }
