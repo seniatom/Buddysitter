@@ -9,7 +9,7 @@
 #include <signal.h>
 #include <syslog.h>
 
-#include "CScheduling.cpp"
+#include "../CScheduling.h"
 
 using namespace std;
 
@@ -21,7 +21,7 @@ struct{
     int minute;
 } CurrentTime;
 
-int weight = 0;
+int feedingtime = 15; //get this from file / database
 
 CScheduling scheduling;
 
@@ -36,11 +36,10 @@ switch(sig) {
     case SIGALRM:
         syslog(LOG_INFO,"timer moment");
         scheduling.GetCurrentTime(&CurrentTime.year,&CurrentTime.month,&CurrentTime.day,&CurrentTime.hour,&CurrentTime.minute);
-        if(scheduling.compareTimes(CurrentTime.year,CurrentTime.month,CurrentTime.day,CurrentTime.hour,CurrentTime.minute,&weight) == true)
+        if(scheduling.compareTimes(CurrentTime.year,CurrentTime.month,CurrentTime.day,CurrentTime.hour,CurrentTime.minute,&feedingtime) == true)
         {
-            scheduling.MsgQueueSend(weight);
+            scheduling.MsgQueueSend();
         }
-		//exit(0);
         alarm(20);
     break;
     }

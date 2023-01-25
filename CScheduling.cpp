@@ -1,10 +1,5 @@
 #include "CScheduling.h"
 
-CScheduling::~CScheduling()
-{
-
-}
-
 void CScheduling::GetCurrentTime(int *year, int *month, int *day, int *hour, int *minute)
 {
     time_t rawtime;
@@ -19,10 +14,9 @@ void CScheduling::GetCurrentTime(int *year, int *month, int *day, int *hour, int
     *hour = timeinfo->tm_hour;
     *minute = timeinfo->tm_min;
 
-    return;
 }
 
-void CScheduling::MsgQueueSend(int weight)
+void CScheduling::MsgQueueSend()
 {
     unsigned int msgprio = 1;
     my_pid = getpid();
@@ -38,12 +32,11 @@ void CScheduling::MsgQueueSend(int weight)
         exit(1);
     }
     /* producing the message */
-    snprintf(msgcontent, MAX_MSG_LEN, "M %d", weight);
+    snprintf(msgcontent, MAX_MSG_LEN, "M");
     /* sending the message      --  mq_send() */
     mq_send(msgq_id, msgcontent, strlen(msgcontent)+1, msgprio);
     /* closing the queue        -- mq_close() */
     mq_close(msgq_id);     
-    return;
 }
 
 bool CScheduling::MsgQueueRecieve()
@@ -91,9 +84,12 @@ int CScheduling::GetWeight()
     return atoi(token);
 }
 
-bool CScheduling::compareTimes(int year, int month, int day, int hour, int minute, int *weight)
+bool CScheduling::compareTimes(int year, int month, int day, int hour, int minute, int wait)
 {
-
-    *weight = 10;
-    return true;
+    // extend this to not only compare target hour but also whatever else we want (and maybe not just one data element)
+    if(/*hour*/ 1 == wait)
+    {
+        return true;
+    }
+    return false;
 }

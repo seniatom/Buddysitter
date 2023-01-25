@@ -19,13 +19,12 @@ using std::string;
 
 class CScheduling {
     public:
-        ~CScheduling();
         void GetCurrentTime(int *year, int *month, int *day, int *hour, int *minute);
         void MsgQueueSend(int weight);
         bool MsgQueueRecieve();
         int GetWeight();
         void PrintMessage();
-        bool compareTimes(int year, int month, int day, int hour, int minute, int *weight);
+        bool compareTimes(int year, int month, int day, int hour, int minute, int wait);
     
     private:
         mqd_t msgq_id;

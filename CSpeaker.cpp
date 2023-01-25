@@ -2,31 +2,27 @@
 
 CSpeaker::~CSpeaker()
 {
+    system("modprobe -r snd_bcm2835");
+}
+
+CSpeaker::CSpeaker()
+{
+    printf("\n\nInserting Device Driver...\n");
+    system("modprobe snd_bcm2835");
+}
+
+void CSpeaker::StartSpeaker(char wavfile[])
+{
+    int command_size = 20;
+    char command[command_size] = "play ";
     
-}
-
-void CSpeaker::InitSpeaker()
-{
-
-}
-
-void CSpeaker::RemSpeaker()
-{
-    
-}
-
-void CSpeaker::StartSpeaker()
-{
-    if(speaker_status == false)
+    for(int i = 0; i<command_size; i++)
     {
-        //start motor dd
+        command[5+i] = wavfile[i];
     }
-    speaker_status = true;
-}
 
-void CSpeaker::StopSpeaker()
-{
-    //stop motor dd
+    speaker_status = true;
+    system(command);
     speaker_status = false;
 }
 

@@ -11,13 +11,8 @@
 #include <signal.h>
 #include <syslog.h>
 
-#include "CScheduling.cpp"
-#include "CDatabaseHandler.cpp"
-#include "CStreaming.cpp"
-#include "CMotor.cpp"
-#include "CSpeaker.cpp"
-#include "CHX711.cpp"
-
+#include "CScheduling.h"
+#include "CDatabaseHandler.h"
 #define tStartupSystem_prio 1
 #define tChangeWifi_prio 2
 #define tStartStopSpeaker_prio 2
@@ -34,8 +29,8 @@ pthread_mutex_t speaker_flag_m      = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t change_wifi_flag_m  = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t streaming_flag_m    = PTHREAD_MUTEX_INITIALIZER;
 
-int weight_var = 0;
-int weight_aux = 0;
+int current_weight = 0;
+int target_weight = 0;
 
 bool motor_flag = false;
 bool streaming_flag = false;
@@ -47,7 +42,7 @@ CDatabaseHandler dbhandler;
 CStreaming stream;
 CMotor motor;
 CSpeaker speaker;
-CHX711 sensor;
+CWeightSensor scale;
 
 void SetupThread(int prio,pthread_attr_t *pthread_attr,struct sched_param *pthread_param);
 void CheckFail(int status);
@@ -58,10 +53,6 @@ switch(sig) {
         syslog(LOG_INFO,"terminate signal catched");
         motor.StopMotor();
         stream.StopStreaming();
-        scheduling.~CScheduling();
-        stream.~CStreaming();
-        motor.~CMotor();
-        sensor.~CHX711();
         exit(0);
     }
 }
@@ -70,7 +61,7 @@ void *tStartupSystem (void *)
 {
     while(1)
     {
-
+        //maybe do scale calibratioN ?
     }
 	return NULL;
 }
@@ -90,11 +81,11 @@ void *tStartStopSpeaker (void *arg)
     {
         if(speaker_flag == true && speaker.SpeakerStatus() == false)
         {
-            speaker.StartSpeaker();
+            speaker.StartSpeaker("BEASTARS.wav");
         }
         else if(speaker_flag == false && speaker.SpeakerStatus() == true)
         {
-            speaker.StopSpeaker();
+           // speaker.StopSpeaker();
         }
     }
 	return NULL;
@@ -122,6 +113,7 @@ void *tStartStopMotor (void *arg)
     {
         if(motor_flag == true && motor.MotorStatus() == false)
         {
+            printf("starting motor");
             motor.StartMotor();
         }
         else if(motor_flag == false && motor.MotorStatus() == true)
@@ -160,8 +152,10 @@ void *tFeedingStatus (void *arg)
     {
         if(scheduling.MsgQueueRecieve() == true)
         {
-            weight_aux = scheduling.GetWeight();
-            printf("weight: %d\n",weight_aux);
+            // weight value should come from database (read from file for now?)
+            target_weight = 5;
+
+            printf("weight: %d\n",target_weight);
         
             pthread_mutex_lock(&motor_flag_m);
             motor_flag = true;
@@ -180,9 +174,9 @@ void *tCheckWeight (void *arg)
 	while(1)
     {  
         pthread_mutex_lock(&weight_m);
-        weight_var++;
-        printf("%d\n", weight_var);
-        if(weight_var > weight_aux && motor_flag == true)
+        //read from sensor like I did on example of hx711
+        current_weight = scale.readWeightSensor();
+        if(current_weight > target_weight && motor_flag == true)
         {
             pthread_cond_signal(&weight_cond);
         }
@@ -200,7 +194,7 @@ int main (int argc, char *argv[])
 
 	pthread_attr_t thread_attr;
 	struct sched_param thread_param;
-	
+
     system("./dScheduledTimes");
 
     signal(SIGTERM,signal_handler);
