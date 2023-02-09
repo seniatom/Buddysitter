@@ -73,6 +73,22 @@ int CDatabaseHandler::FirebaseInit()
         return 0;
     }
 
+    pFuncDownloadAudio = PyDict_GetItemString(pDict, (char*)"DownloadAudio");
+
+    if (!PyCallable_Check(pFuncDownloadAudio))
+    {
+        PyErr_Print();
+        return 0;
+    }
+
+    pFuncResetAudioValue = PyDict_GetItemString(pDict, (char*)"ResetAudioValue");
+
+    if (!PyCallable_Check(pFuncResetAudioValue))
+    {
+        PyErr_Print();
+        return 0;
+    }
+
     pReturn = PyObject_CallFunction(pFuncFirebaseInit, NULL);
     if(pReturn == NULL)
     {
@@ -83,15 +99,16 @@ int CDatabaseHandler::FirebaseInit()
     return 1;
 }
 
-int CDatabaseHandler::LoginUser(char* userId, char* customId)
+int CDatabaseHandler::LoginUser(char* userId) //char* email, char* password)
 {
-    pReturn = PyObject_CallFunction(pFuncLoginUser, "ss", userId, customId);
+    pReturn = PyObject_CallFunction(pFuncLoginUser, "s", userId); //ss", userId, email, password);
     if(pReturn == NULL)
     {
         PyErr_Print();
         return 0;
     }
     Py_DECREF(pReturn);
+    printf("Login Successfull\n");
 
     return 1;
 }
@@ -118,7 +135,7 @@ bool CDatabaseHandler::CompareTimes(int year, int month, int day, int hour, int 
     }
 }
 
-bool CDatabaseHandler::GetStreamingFlag()
+int CDatabaseHandler::GetStreamingFlag()
 {
     pReturn = PyObject_CallFunction(pFuncGetStreamingFlag, NULL);
     if(pReturn == NULL)
@@ -134,7 +151,7 @@ bool CDatabaseHandler::GetStreamingFlag()
     return flag;
 }
 
-bool CDatabaseHandler::GetSpeakerFlag()
+int CDatabaseHandler::GetSpeakerFlag()
 {
     pReturn = PyObject_CallFunction(pFuncGetSpeakerFlag, NULL);
     if(pReturn == NULL)
@@ -143,16 +160,16 @@ bool CDatabaseHandler::GetSpeakerFlag()
         return 0;
     }
 
-    int flag = (int)PyLong_AsLong(pReturn);
+    int ret = (int)PyLong_AsLong(pReturn);
 
     Py_XDECREF(pReturn);
 
-    return flag;
+    return ret;
 }
 
-bool CDatabaseHandler::GetChangeWifiFlag()
+int CDatabaseHandler::GetChangeWifiFlag()
 {
-    pReturn = PyObject_CallFunction(pFuncGetStreamingFlag, NULL);
+    pReturn = PyObject_CallFunction(pFuncGetChangeWifiFlag, NULL);
     if(pReturn == NULL)
     {
         PyErr_Print();
@@ -164,5 +181,39 @@ bool CDatabaseHandler::GetChangeWifiFlag()
     Py_XDECREF(pReturn);
 
     return flag;
+}
+
+bool CDatabaseHandler::DownloadAudio(int index)
+{
+    char number[2];
+    sprintf(number, "%d", index);
+    pReturn = PyObject_CallFunction(pFuncDownloadAudio, "s", number);
+    if(pReturn == NULL)
+    {
+        PyErr_Print();
+        return 0;
+    }
+
+    int ret = (int)PyLong_AsLong(pReturn);
+
+    Py_XDECREF(pReturn);
+
+    return ret;
+}
+
+bool CDatabaseHandler::ResetAudioValue()
+{
+    pReturn = PyObject_CallFunction(pFuncResetAudioValue, NULL);
+    if(pReturn == NULL)
+    {
+        PyErr_Print();
+        return 0;
+    }
+
+    int ret = (int)PyLong_AsLong(pReturn);
+
+    Py_XDECREF(pReturn);
+
+    return ret;
 }
 

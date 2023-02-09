@@ -7,6 +7,7 @@
 #include <cstring>
 #include <unistd.h> 
 #include <sys/wait.h>
+#include <bits/stdc++.h> 
 
 class CSpeaker
 {
@@ -14,12 +15,13 @@ public:
     ~CSpeaker();
     void InitSpeaker();
     void RemSpeaker();
-    void StartSpeaker();
+    void StartSpeaker(int index);
     void StopSpeaker();
     bool SpeakerStatus();
 
 private:
-    bool speaker_status = false;
+    void ConvertAudioFormat(int index);
+    void RemoveOriginalFile(int index);
 };
 
 #endif

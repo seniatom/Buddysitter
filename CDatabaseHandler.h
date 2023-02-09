@@ -12,15 +12,17 @@ class CDatabaseHandler {
     public:
         ~CDatabaseHandler();
         int FirebaseInit();
-        int LoginUser(char* userId, char* customId);
+        int LoginUser(char* userId); //char* email, char* password);
         bool CompareTimes(int year, int month, int day, int hour, int minute, int *weight);
-        bool GetStreamingFlag();
-        bool GetSpeakerFlag();
-        bool GetChangeWifiFlag();
+        int GetStreamingFlag();
+        int GetSpeakerFlag();
+        int GetChangeWifiFlag();
+        bool DownloadAudio(int index);
+        bool ResetAudioValue();
     
     private:
         PyObject *pName, *pModule, *pDict;
-        PyObject *pFuncFirebaseInit, *pFuncLoginUser, *pFuncGetStreamingFlag, *pFuncGetSpeakerFlag, *pFuncGetChangeWifiFlag, *pFuncGetSchedulingTimes, *pFuncReturnWeight;
+        PyObject *pFuncFirebaseInit, *pFuncLoginUser, *pFuncGetStreamingFlag, *pFuncGetSpeakerFlag, *pFuncGetChangeWifiFlag, *pFuncGetSchedulingTimes, *pFuncReturnWeight, *pFuncDownloadAudio, *pFuncResetAudioValue;
         PyObject *pReturn;
 };
 

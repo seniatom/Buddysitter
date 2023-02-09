@@ -25,7 +25,8 @@ struct{
 int weight = 0;
 
 char userId[] = "YW7b3hkFsaTo7qfU5gZ5tyHJ85v2";
-char customId[] = "daemonId";
+char daemon_email[] = "daemon.admin@buddysitter.com";
+char daemon_password[] = "123456";
 
 CScheduling scheduling;
 CDatabaseHandler dbhandler;
@@ -45,9 +46,8 @@ switch(sig) {
         if(dbhandler.CompareTimes(CurrentTime.year,CurrentTime.month,CurrentTime.day,CurrentTime.hour,CurrentTime.minute,&weight) == true)
         {
             scheduling.MsgQueueSend(weight); //Send weight to msg queue
-			exit(0);
+		    sleep(60);	
         }
-		//exit(0);
         alarm(1);
     break;
     }
@@ -89,14 +89,14 @@ int main(int argc, char *argv[]){
 	signal(SIGHUP,signal_handler);
 	signal(SIGTERM,signal_handler);
 
-    //setenv("PYTHONPATH",".", 1);
+    //setenv("PYTHONPATH","/etc/python_code", 1);
 
 	if(!dbhandler.FirebaseInit())
     {
         printf("init error");
         return 0;
     }
-    if(!dbhandler.LoginUser(userId,customId))
+    if(!dbhandler.LoginUser(userId))
     {
         printf("login error");
         return 0;
