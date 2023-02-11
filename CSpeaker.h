@@ -14,10 +14,7 @@ class CSpeaker
 public:
     CSpeaker();
     ~CSpeaker();
-    void InitSpeaker();
-    void RemSpeaker();
     void StartSpeaker(int index);
-    void StopSpeaker();
     bool SpeakerStatus();
 
 private:
