@@ -12,7 +12,6 @@ class CMotor
 {
 public:
     ~CMotor();
-    void InitMotor();
     CMotor();
     int GetDigits(int num);
     void StartMotor(int i = 800);
