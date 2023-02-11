@@ -1,6 +1,6 @@
 #include "CScheduling.h"
 
-void CScheduling::GetCurrentTime(int *year, int *month, int *day, int *hour, int *minute)
+void CScheduling::GetCurrentTime(int *year, int *month, int *day, int *hour, int *minute) //Retrieve current system's time
 {
     time_t rawtime;
     struct tm * timeinfo;
@@ -17,7 +17,7 @@ void CScheduling::GetCurrentTime(int *year, int *month, int *day, int *hour, int
     return;
 }
 
-void CScheduling::MsgQueueSend(int weight)
+void CScheduling::MsgQueueSend(int weight) //Send weight to MsgQueue 
 {
     unsigned int msgprio = 1;
     my_pid = getpid();
@@ -41,7 +41,7 @@ void CScheduling::MsgQueueSend(int weight)
     return;
 }
 
-bool CScheduling::MsgQueueRecieve()
+bool CScheduling::MsgQueueRecieve() //Retrieve Weight from MsgQueue
 {
     int msgsz;
     unsigned int sender;
