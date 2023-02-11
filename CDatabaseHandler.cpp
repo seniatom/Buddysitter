@@ -5,9 +5,8 @@ CDatabaseHandler::~CDatabaseHandler()
     Py_FinalizeEx(0);
 }
 
-int CDatabaseHandler::FirebaseInit()
+int CDatabaseHandler::FirebaseInit() //initializes python functions
 {
-    //setenv("PYTHONPATH","/home/hugo/Visual_Studio_Code/python", 1);
     Py_InitializeEx(0);
 
     pName = PyUnicode_FromString((char*)"DatabaseHandler");
@@ -99,9 +98,9 @@ int CDatabaseHandler::FirebaseInit()
     return 1;
 }
 
-int CDatabaseHandler::LoginUser(char* userId) //char* email, char* password)
+int CDatabaseHandler::LoginUser(char* userId) //passes the userId to the python script
 {
-    pReturn = PyObject_CallFunction(pFuncLoginUser, "s", userId); //ss", userId, email, password);
+    pReturn = PyObject_CallFunction(pFuncLoginUser, "s", userId); 
     if(pReturn == NULL)
     {
         PyErr_Print();
@@ -113,7 +112,7 @@ int CDatabaseHandler::LoginUser(char* userId) //char* email, char* password)
     return 1;
 }
 
-bool CDatabaseHandler::CompareTimes(int year, int month, int day, int hour, int minute, int *weight)
+bool CDatabaseHandler::CompareTimes(int year, int month, int day, int hour, int minute, int *weight) //Compare times from the database
 {
     pReturn = PyObject_CallFunction(pFuncGetSchedulingTimes, "iiiii", year, month, day, hour, minute);
     if(pReturn == NULL)
@@ -135,7 +134,7 @@ bool CDatabaseHandler::CompareTimes(int year, int month, int day, int hour, int 
     }
 }
 
-int CDatabaseHandler::GetStreamingFlag()
+int CDatabaseHandler::GetStreamingFlag() //Retrieve Streaming Flag from the database
 {
     pReturn = PyObject_CallFunction(pFuncGetStreamingFlag, NULL);
     if(pReturn == NULL)
@@ -151,7 +150,7 @@ int CDatabaseHandler::GetStreamingFlag()
     return flag;
 }
 
-int CDatabaseHandler::GetSpeakerFlag()
+int CDatabaseHandler::GetSpeakerFlag() //Retrieve Speaker variable from the database
 {
     pReturn = PyObject_CallFunction(pFuncGetSpeakerFlag, NULL);
     if(pReturn == NULL)
@@ -167,7 +166,7 @@ int CDatabaseHandler::GetSpeakerFlag()
     return ret;
 }
 
-int CDatabaseHandler::GetChangeUserFlag()
+int CDatabaseHandler::GetChangeUserFlag()  //Retrieve Change User Flag from the database
 {
     pReturn = PyObject_CallFunction(pFuncGetChangeUserFlag, NULL);
     if(pReturn == NULL)
@@ -183,7 +182,7 @@ int CDatabaseHandler::GetChangeUserFlag()
     return flag;
 }
 
-bool CDatabaseHandler::DownloadAudio(int index)
+bool CDatabaseHandler::DownloadAudio(int index) //downloads audio(index).m4a from the cloud storage
 {
     char number[2];
     sprintf(number, "%d", index);
@@ -201,7 +200,7 @@ bool CDatabaseHandler::DownloadAudio(int index)
     return ret;
 }
 
-bool CDatabaseHandler::ResetAudioValue()
+bool CDatabaseHandler::ResetAudioValue() //resets Speaker variable in the database
 {
     pReturn = PyObject_CallFunction(pFuncResetAudioValue, NULL);
     if(pReturn == NULL)
