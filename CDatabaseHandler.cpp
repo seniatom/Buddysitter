@@ -57,9 +57,9 @@ int CDatabaseHandler::FirebaseInit()
         return 0;
     }
 
-    pFuncGetChangeWifiFlag = PyDict_GetItemString(pDict, (char*)"GetChangeWifiFlag");
+    pFuncGetChangeWifiFlag = PyDict_GetItemString(pDict, (char*)"GetChangeUserFlag");
 
-    if (!PyCallable_Check(pFuncGetChangeWifiFlag))
+    if (!PyCallable_Check(pFuncGetChangeUserFlag))
     {
         PyErr_Print();
         return 0;
@@ -167,9 +167,9 @@ int CDatabaseHandler::GetSpeakerFlag()
     return ret;
 }
 
-int CDatabaseHandler::GetChangeWifiFlag()
+int CDatabaseHandler::GetChangeUserFlag()
 {
-    pReturn = PyObject_CallFunction(pFuncGetChangeWifiFlag, NULL);
+    pReturn = PyObject_CallFunction(pFuncGetChangeUserFlag, NULL);
     if(pReturn == NULL)
     {
         PyErr_Print();
