@@ -12,6 +12,7 @@
 class CSpeaker
 {
 public:
+    CSpeaker();
     ~CSpeaker();
     void InitSpeaker();
     void RemSpeaker();
@@ -22,6 +23,7 @@ public:
 private:
     void ConvertAudioFormat(int index);
     void RemoveOriginalFile(int index);
+    void PlayAudio(char wavfile[]);
 };
 
 #endif
