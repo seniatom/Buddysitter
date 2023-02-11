@@ -18,10 +18,13 @@ void CSpeaker::StartSpeaker(int index)
     ConvertAudioFormat(index);
     sleep(1);
     RemoveOriginalFile(index);
+    
+    // audio(index).wav string //
     char audiofile[10] = "audio";
     strcat(audiofile, index); 
     char wav[] = ".wav";
     strcat(audiofile, wav);
+    
     PlayAudio(audiofile);
 }
 
