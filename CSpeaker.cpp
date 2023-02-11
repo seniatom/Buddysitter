@@ -2,17 +2,14 @@
 
 CSpeaker::~CSpeaker()
 {
-    
+    printf("\n\nRemoving Device Driver CSpeaker\n");
+    system("modprobe -r snd_bcm2835");
 }
 
-void CSpeaker::InitSpeaker()
+CSpeaker::CSpeaker()
 {
-
-}
-
-void CSpeaker::RemSpeaker()
-{
-    
+    printf("\n\nInserting Device Driver CSpeaker\n");
+    system("modprobe snd_bcm2835");
 }
 
 void CSpeaker::StartSpeaker(int index)
@@ -21,12 +18,26 @@ void CSpeaker::StartSpeaker(int index)
     ConvertAudioFormat(index);
     sleep(1);
     RemoveOriginalFile(index);
-    //start Speaker
+    char audiofile[10] = "audio";
+    strcat(audiofile, index); 
+    char wav[] = ".wav";
+    strcat(audiofile, wav);
+    PlayAudio(audiofile);
 }
 
-void CSpeaker::StopSpeaker()
+void CSpeaker::PlayAudio(char wavfile[])
 {
-    //stop motor dd
+    nt command_size = 20;
+    char command[command_size] = "play ";
+    
+    for(int i = 0; i<command_size; i++)
+    {
+        command[5+i] = wavfile[i];
+    }
+
+    speaker_status = true;
+    system(command);
+    speaker_status = false;
 }
 
 void CSpeaker::ConvertAudioFormat(int index)
