@@ -25,8 +25,6 @@ struct{
 int weight = 0;
 
 char userId[] = "YW7b3hkFsaTo7qfU5gZ5tyHJ85v2";
-char daemon_email[] = "daemon.admin@buddysitter.com";
-char daemon_password[] = "123456";
 
 CScheduling scheduling;
 CDatabaseHandler dbhandler;
@@ -54,44 +52,42 @@ switch(sig) {
 }
 
 int main(int argc, char *argv[]){
-	pid_t pid, sid;
+    pid_t pid, sid;
 
-	pid = fork(); // create a new process
+    pid = fork(); // create a new process
 
-	if (pid < 0) { // on error exit
-		perror("fork");
-	    exit(EXIT_FAILURE);
-	}
+    if (pid < 0) { // on error exit
+	perror("fork");
+	exit(EXIT_FAILURE);
+    }
 
-	if (pid > 0){  
-		printf("Deamon PID: %d\n", pid);	
-		exit(EXIT_SUCCESS); // parent process (exit)
-	}
-	sid = setsid(); // create a new session
+    if (pid > 0){  
+	printf("Deamon PID: %d\n", pid);	
+	exit(EXIT_SUCCESS); // parent process (exit)
+    }
+    sid = setsid(); // create a new session
 
-	if (sid < 0) { 
-		perror("setsid");
-		exit(EXIT_FAILURE);
-	}
-	// make '/' the root directory
-	if (chdir("/") < 0) { 
-		perror("chdir");
-		exit(EXIT_FAILURE);
-	}
-	umask(0);
-
-	//close standard file descriptor//
-	close(STDIN_FILENO);  
-	close(STDOUT_FILENO);
-	close(STDERR_FILENO);
+    if (sid < 0) { 
+        perror("setsid");
+        exit(EXIT_FAILURE);
+    }
+    // make '/' the root directory
+    if (chdir("/") < 0) { 
+	perror("chdir");
+	exit(EXIT_FAILURE);
+    }
+    umask(0);
+	
+    //close standard file descriptor//
+    close(STDIN_FILENO);  
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
 
     signal(SIGALRM,signal_handler);
-	signal(SIGHUP,signal_handler);
-	signal(SIGTERM,signal_handler);
+    signal(SIGHUP,signal_handler);
+    signal(SIGTERM,signal_handler);
 
-    //setenv("PYTHONPATH","/etc/python_code", 1);
-
-	if(!dbhandler.FirebaseInit())
+    if(!dbhandler.FirebaseInit())
     {
         printf("init error");
         return 0;
@@ -103,8 +99,8 @@ int main(int argc, char *argv[]){
     }
     alarm(1);
 
-	while (1) {
-        pause();
-	}
+    while (1) {
+    pause();
+    }
 exit(EXIT_SUCCESS);		
 }
