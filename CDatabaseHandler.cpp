@@ -2,7 +2,7 @@
 
 CDatabaseHandler::~CDatabaseHandler()
 {
-
+    Py_FinalizeEx(0);
 }
 
 int CDatabaseHandler::FirebaseInit()
