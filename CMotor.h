@@ -6,14 +6,16 @@
 #include <iostream>
 #include <unistd.h> 
 #include <sys/wait.h>
+#include <fcntl.h>
 
 class CMotor
 {
 public:
     ~CMotor();
     void InitMotor();
-    void RemMotor();
-    void StartMotor();
+    CMotor();
+    int GetDigits(int num);
+    void StartMotor(int i = 800);
     void StopMotor();
     bool MotorStatus();
 
