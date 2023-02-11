@@ -12,14 +12,16 @@ CSpeaker::CSpeaker()
     system("modprobe snd_bcm2835");
 }
 
-void CSpeaker::StartSpeaker(int index)
+void CSpeaker::StartSpeaker(int index) 
 {
     sleep(1);
-    ConvertAudioFormat(index);
+    /* Coverts from .m4a file to .wav */
+    ConvertAudioFormat(index); 
     sleep(1);
+    /* Removes .m4a file */
     RemoveOriginalFile(index);
     
-    // audio(index).wav string //
+    /* audio(index).wav string */
     char audiofile[10] = "audio";
     strcat(audiofile, index); 
     char wav[] = ".wav";
