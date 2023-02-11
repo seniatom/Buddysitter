@@ -11,6 +11,6 @@ objects = main
 all: $(objects)
 
 $(objects): %: %.cpp
-	$(CC) $(CFLAGS) $(INC) -C $(KDIR) -o BuddySitter main.cpp CScheduling.cpp CMotor.cpp CSpeaker.cpp CStreaming.cpp CWeightSensor.cpp CDatabaseHandler.cpp
+	$(CC) $(CFLAGS) $(INC) -C $(KDIR) -o BuddySitter main.cpp CScheduling.cpp CMotor.cpp CSpeaker.cpp CStreaming.cpp CHX711.cpp CDatabaseHandler.cpp
 clean:
 	${RM} *.o BuddySitter
