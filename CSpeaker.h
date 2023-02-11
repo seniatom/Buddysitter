@@ -12,10 +12,8 @@ class CSpeaker
 {
 public:
     ~CSpeaker();
-    void InitSpeaker();
-    void RemSpeaker();
-    void StartSpeaker();
-    void StopSpeaker();
+    CSpeaker();
+    void StartSpeaker(char wavfile[]);
     bool SpeakerStatus();
 
 private:

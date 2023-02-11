@@ -2,11 +2,11 @@ CC = /home/inesvdm/buildroot/buildroot-2021.08/output/host/bin/aarch64-buildroot
   
 CFLAGS = -g
 RM = /bin/rm -f
-objects = CMotor
+objects = dScheduledTimes
 
 all: $(objects)
 
 $(objects): %: %.cpp
-	$(CC) $(CFLAGS) -o CMotor CMotor.cpp -w
+	$(CC) $(CFLAGS) -C $(KDIR) -o dScheduledTimes dScheduledTimes.cpp ../CScheduling.cpp
 clean:
-	${RM} *.o CMotor
+	${RM} *.o dScheduledTimes

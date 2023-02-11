@@ -9,7 +9,8 @@
 #include <signal.h>
 #include <syslog.h>
 
-#include "CScheduling.cpp"
+#include "../CScheduling.h"
+#include "../CDatabaseHandler.h"
 
 using namespace std;
 
@@ -23,7 +24,11 @@ struct{
 
 int weight = 0;
 
+char userId[] = "YW7b3hkFsaTo7qfU5gZ5tyHJ85v2";
+char customId[] = "daemonId";
+
 CScheduling scheduling;
+CDatabaseHandler dbhandler;
 
 void signal_handler(int sig) {
 switch(sig) {
@@ -34,14 +39,16 @@ switch(sig) {
         syslog(LOG_INFO,"terminate signal catched");
         exit(0);
     case SIGALRM:
-        syslog(LOG_INFO,"timer moment");
-        scheduling.GetCurrentTime(&CurrentTime.year,&CurrentTime.month,&CurrentTime.day,&CurrentTime.hour,&CurrentTime.minute);
-        if(scheduling.compareTimes(CurrentTime.year,CurrentTime.month,CurrentTime.day,CurrentTime.hour,CurrentTime.minute,&weight) == true)
+        syslog(LOG_INFO,"timer overflow");
+		//Get current time and compare to times in database//
+        scheduling.GetCurrentTime(&CurrentTime.year,&CurrentTime.month,&CurrentTime.day,&CurrentTime.hour,&CurrentTime.minute); 
+        if(dbhandler.CompareTimes(CurrentTime.year,CurrentTime.month,CurrentTime.day,CurrentTime.hour,CurrentTime.minute,&weight) == true)
         {
-            scheduling.MsgQueueSend(weight);
+            scheduling.MsgQueueSend(weight); //Send weight to msg queue
+			exit(0);
         }
 		//exit(0);
-        alarm(20);
+        alarm(1);
     break;
     }
 }
@@ -62,25 +69,39 @@ int main(int argc, char *argv[]){
 	}
 	sid = setsid(); // create a new session
 
-	if (sid < 0) { // on error exit
+	if (sid < 0) { 
 		perror("setsid");
 		exit(EXIT_FAILURE);
 	}
 	// make '/' the root directory
-	if (chdir("/") < 0) { // on error exit
+	if (chdir("/") < 0) { 
 		perror("chdir");
 		exit(EXIT_FAILURE);
 	}
 	umask(0);
-	close(STDIN_FILENO);  // close standard input file descriptor
-	close(STDOUT_FILENO); // close standard output file descriptor
-	close(STDERR_FILENO); // close standard error file descriptor
+
+	//close standard file descriptor//
+	close(STDIN_FILENO);  
+	close(STDOUT_FILENO);
+	close(STDERR_FILENO);
 
     signal(SIGALRM,signal_handler);
 	signal(SIGHUP,signal_handler);
 	signal(SIGTERM,signal_handler);
-	
-    alarm(20);
+
+    //setenv("PYTHONPATH",".", 1);
+
+	if(!dbhandler.FirebaseInit())
+    {
+        printf("init error");
+        return 0;
+    }
+    if(!dbhandler.LoginUser(userId,customId))
+    {
+        printf("login error");
+        return 0;
+    }
+    alarm(1);
 
 	while (1) {
         pause();

@@ -4,21 +4,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
-#include <cstring>
 #include <unistd.h> 
 #include <sys/wait.h>
+#include <fcntl.h>
+
 
 class CMotor
 {
 public:
-    // ~CMotor();
-    CMotor()
-    {
-        Motor_Status = false;
-    }
-    void InitMotor();
-    void RemMotor();
-    void StartMotor();
+    ~CMotor();
+    CMotor();
+    int GetDigits(int num);
+    void StartMotor(int i = 215);
     void StopMotor();
     bool MotorStatus();
 
