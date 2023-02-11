@@ -77,8 +77,9 @@ void *tChangeUser (void *arg)
 {
     while(1)
     {
-        if(change_user_flag == 1)
+        if(change_user_flag)
         {
+	    /* Write "0" in Paired_Status file */	
             WriteFile("0");
             exit(1);
         }
@@ -93,6 +94,7 @@ void *tStartStopSpeaker (void *arg)
     {
         if(speaker_flag != 0)
         {
+	    /* Reset Speaker variable and download .m4a file */
             pthread_mutex_lock(&firebase_m);
             printf("start reset\n");
             dbhandler.ResetAudioValue();
@@ -100,6 +102,7 @@ void *tStartStopSpeaker (void *arg)
             dbhandler.DownloadAudio(speaker_flag);
             pthread_mutex_unlock(&firebase_m);
 
+	    /* Start Speaker */	
             pthread_mutex_lock(&speaker_flag_m);
             printf("start speaker %d\n", speaker_flag);
             speaker.StartSpeaker(speaker_flag);
@@ -114,13 +117,15 @@ void *tStartStopStreaming (void *arg)
 {
     while(1)
     {
-        if(streaming_flag == 1 && stream.StreamStatus() == false)
+        if(streaming_flag && stream.StreamStatus() == false)
         {
+	    /* Start Stream if streaming flag is set */	
             stream.StartStreaming();
             printf("start streaming\n");
         }
-        else if(streaming_flag == 0 && stream.StreamStatus() == true)
+        else if(!streaming_flag && stream.StreamStatus() == true)
         {
+	    /* Stop Stream if streaming flag is set */
             stream.StopStreaming();
             printf("stop streaming\n");
         }
@@ -132,13 +137,15 @@ void *tStartStopMotor (void *arg)
 {
     while(1)
     {
-        if(motor_flag == 1 && motor.MotorStatus() == false)
+        if(motor_flag && motor.MotorStatus() == false)
         {
+	    /* Start Motor if motor flag is set */
             motor.StartMotor();
             printf("start motor\n");
         }
-        else if(motor_flag == 0 && motor.MotorStatus() == true)
+        else if(!motor_flag && motor.MotorStatus() == true)
         {
+	    /* Start Motor if motor flag not set */	
             motor.StopMotor();
             printf("stop motor\n");
         }
@@ -146,25 +153,23 @@ void *tStartStopMotor (void *arg)
     return NULL;
 }
 
-void *tFlagCheck (void *arg) //Updates flags from database
+void *tFlagCheck (void *arg)
 {
     while(1)
     {
+	/* Get flags from the database */
         pthread_mutex_lock(&firebase_m);
         int streaming_flag_aux = dbhandler.GetStreamingFlag();
         int speaker_flag_aux = dbhandler.GetSpeakerFlag();
         int change_user_flag_aux = dbhandler.GetChangeUserFlag();
         pthread_mutex_unlock(&firebase_m);
-
+	
+	/* Assign to local flags */     
         streaming_flag = streaming_flag_aux;
-        //printf("streaming_f: %d\n", streaming_flag);
         pthread_mutex_lock(&speaker_flag_m);
         speaker_flag = speaker_flag_aux;
-        //printf("speaker_f: %d\n", speaker_flag);
         pthread_mutex_unlock(&speaker_flag_m);
         change_user_flag = change_user_flag_aux;
-        //printf("change_user_f: %d\n", change_user_flag);
-
 
         sleep(1);
     }
@@ -172,19 +177,22 @@ void *tFlagCheck (void *arg) //Updates flags from database
 }
 
 
-void *tFeedingStatus (void *arg) //Checks for messages in msqueue
+void *tFeedingStatus (void *arg) 
 {
     while(1)
     {
-        if(scheduling.MsgQueueRecieve() == true) //Checks for messages in mqueue
+	/* Checks for messages in mqueue */
+        if(scheduling.MsgQueueRecieve() == true)
         {
-            weight_aux = scheduling.GetWeight() + weight_var; //loads weight_aux with desired weight
+	    /* loads weight_aux with desired weight */	
+            weight_aux = scheduling.GetWeight() + weight_var;
             printf("weight: %d\n",weight_aux);
         
             pthread_mutex_lock(&motor_flag_m); 
             motor_flag = 1;
             printf("motor_flag = true\n"); 
-            pthread_cond_wait(&weight_cond, &motor_flag_m); //waits for the desired weight
+	    /* waits for the desired weight */
+            pthread_cond_wait(&weight_cond, &motor_flag_m); 
             motor_flag = 0;
             printf("motor_flag = false\n");
             pthread_mutex_unlock(&motor_flag_m);
@@ -197,7 +205,8 @@ void *tFeedingStatus (void *arg) //Checks for messages in msqueue
 void *tCheckWeight (void *arg)
 {
     while(1)
-    { 
+    { 	
+	/* Read Sensor value */    
         pthread_mutex_lock(&weight_m);
         weight_var = sensor.ReadWeightSample();
 	printf("%d\n", weight_var);
@@ -205,7 +214,8 @@ void *tCheckWeight (void *arg)
 	    
         if((weight_var >= weight_aux) && motor.MotorStatus() == true)
         {
-            pthread_cond_signal(&weight_cond); //unBlocks FeedingStatus if weight achieved
+	    /* unBlocks FeedingStatus if weight achieved */
+            pthread_cond_signal(&weight_cond); 
         }
         sleep(1);
     }
@@ -221,9 +231,11 @@ int main (int argc, char *argv[])
     pthread_attr_t thread_attr;
     struct sched_param thread_param;
 	
-    setenv("PYTHONPATH","/etc/python_code", 1); //set pythonpath to script directory
+    /* Set pythonpath to script directory */	
+    setenv("PYTHONPATH","/etc/python_code", 1);
 
-    if(ReadFile() == "0") //check if device paired
+    /* check if device paired */	
+    if(ReadFile() == "0")
     {
         char id[30];
         //bluetooth implementation
@@ -233,23 +245,26 @@ int main (int argc, char *argv[])
         ReadFile().copy(userId,29,0);
         printf("User Id: %s\n", userId);
     }
-
-    if(!dbhandler.FirebaseInit()) //Initialize Firebase
+	
+    /* Initialize Firebase */	
+    if(!dbhandler.FirebaseInit())
     {
         printf("init error");
         return 0;
     }
-    if(!dbhandler.LoginUser(userId)) //Pass userId
+    /* Pass userId */
+    if(!dbhandler.LoginUser(userId)) 
     {
         printf("login error");
         return 0;
     }
-	
-    system("./dScheduledTimes //Open Daemon
+    
+    /* Launch daemon */ 
+    system("./dScheduledTimes
 
     signal(SIGTERM,signal_handler);
 	   
-    /*Create Threads*/	   
+    /*Create and Initialize Threads*/	   
     pthread_attr_init (&thread_attr);
     pthread_attr_getschedpolicy (&thread_attr, &thread_policy);
     pthread_attr_getschedparam (&thread_attr, &thread_param);
@@ -305,11 +320,11 @@ void CheckFail(int status)
 	if(status)
 	{
 		if(status==EPERM)
-			fprintf(stderr,"pthread_create() got EPERM\n");
+		fprintf(stderr,"pthread_create() got EPERM\n");
 		else if(status==EINVAL)
-      			fprintf(stderr,"pthread_create() got EINVAL\n");
+      		fprintf(stderr,"pthread_create() got EINVAL\n");
     		else
-      			fprintf(stderr,"pthread_create() got neither EPERM nor EINVAL\n");
+      		fprintf(stderr,"pthread_create() got neither EPERM nor EINVAL\n");
 
     		fprintf(stderr,"pthread_create() got error %d\n",status);
     		errno=status;
