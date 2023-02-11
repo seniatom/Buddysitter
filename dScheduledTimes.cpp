@@ -39,11 +39,12 @@ switch(sig) {
         exit(0);
     case SIGALRM:
         syslog(LOG_INFO,"timer overflow");
-		//Get current time and compare to times in database//
+	/* Get current time and compare to times in database */
         scheduling.GetCurrentTime(&CurrentTime.year,&CurrentTime.month,&CurrentTime.day,&CurrentTime.hour,&CurrentTime.minute); 
         if(dbhandler.CompareTimes(CurrentTime.year,CurrentTime.month,CurrentTime.day,CurrentTime.hour,CurrentTime.minute,&weight) == true)
         {
-            scheduling.MsgQueueSend(weight); //Send weight to msg queue
+	    /* Send weight to msg queue */
+            scheduling.MsgQueueSend(weight); 
 		    sleep(60);	
         }
         alarm(1);
@@ -71,14 +72,14 @@ int main(int argc, char *argv[]){
         perror("setsid");
         exit(EXIT_FAILURE);
     }
-    // make '/' the root directory
+    /* make '/' the root directory */
     if (chdir("/") < 0) { 
 	perror("chdir");
 	exit(EXIT_FAILURE);
     }
     umask(0);
 	
-    //close standard file descriptor//
+    /* close standard file descriptor */
     close(STDIN_FILENO);  
     close(STDOUT_FILENO);
     close(STDERR_FILENO);
