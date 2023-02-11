@@ -1,32 +1,62 @@
 #include "CMotor.h"
 
+int servo0;
+
 CMotor::~CMotor()
 {
-    
+    close(servo0);
+    system("rmmod servo");  
 }
 
-void CMotor::InitMotor()
+CMotor::CMotor()
 {
+    printf("\n\nInserting Device Driver CMotor\n");
+    system("insmod servo.ko");
 
+    servo0 = open("/dev/servo0", O_WRONLY);
 }
 
-void CMotor::RemMotor()
+int CMotor::GetDigits(int num)
 {
-    
-}
+    int count = 0;
 
-void CMotor::StartMotor()
-{
-    if(Motor_Status == false)
+    if(num == 0)
     {
-        //start motor dd
+        count = 1;
     }
+    else
+    {
+        printf ("couting: %d %d\n", count, num);
+        while(num > 0)
+        {
+            num = num / 10;
+            count++;
+        }
+    }
+    printf ("couting: %d %d\n", count, num);
+    return count;
+}
+
+void CMotor::StartMotor(int i)
+{
+    char buffer [sizeof(int)];
+    int count = this->GetDigits(i);
+
+    printf ("StartMotor count: %d\n", count);
+
+    int buffersize = count + 1;
+    snprintf(buffer, buffersize , "%d", i);
+
+    printf ("StartMotor decimal: %s %d\n",buffer, count);
+    write(servo0, &buffer, count);
+    
     Motor_Status = true;
 }
 
 void CMotor::StopMotor()
 {
-    //stop motor dd
+    write(servo0, "0", 1);
+
     Motor_Status = false;
 }
 
