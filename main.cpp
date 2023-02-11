@@ -68,7 +68,7 @@ switch(sig) {
         stream.~CStreaming();
         motor.~CMotor();
         sensor.~CHX711();
-        Py_FinalizeEx();
+ 	dbhandler.~DatabaseHandler();
         exit(0);
     }
 }
