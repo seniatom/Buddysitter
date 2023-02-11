@@ -3,13 +3,17 @@
 
 CWeightSensor::CWeightSensor()
 {
-    printf("\n\nInserting Device Driver...\n");
+    printf("\n\nInserting Device Driver HX711...\n");
     system("insmod hx711.ko");
     TareWeightSensor();
+    printf("\n\nColocar peso de 1kg (10s)...\n");
+    sleep(10);
+    CalibrateWeightSensor();
 }
 
 CWeightSensor::~CWeightSensor()
 {
+    printf("\n\nRemoving Device Driver HX711...\n");
     system("rmmod hx711");  
 }
 
@@ -50,24 +54,26 @@ void CWeightSensor::CalibrateWeightSensor()
     reading = reading / loops; 
 
     calibration_value = zero - reading;
-    printf("\n calibration_value -> %d    zero:%d    read:%d\n", calibration_value, zero, atoi(sample));
+    printf("\n calibration_value -> %d    zero:%d    read:%d \n", calibration_value, zero, atoi(sample));
 
     close(scale0);
 }
 
-float CWeightSensor::readWeightSensor()
+int CWeightSensor::readWeightSensor()
 {
     scale0 = open("/dev/hx7110", O_RDONLY);
 
-    float weight_read; 
+    int weight_read; 
     char sample[10];
 
     read(scale0, &sample, 10);
     weight_read = zero - atoi(sample);
 
-    WeightSensor_Status = weight_read / calibration_value;
+    WeightSensor_Status = (weight_read*1000)/ calibration_value;
 
-    printf("\n\n weight (g) -> %f \n", WeightSensor_Status);
+    printf("\n\n weight read(g) -> %d ", weight_read);
+    printf(" calibration(g) -> %d ", calibration_value);
+    printf(" weight (g) \n\n-> %d \n", WeightSensor_Status);
 
     close(scale0);
 

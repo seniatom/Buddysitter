@@ -16,13 +16,13 @@ public:
     
     void TareWeightSensor();
     void CalibrateWeightSensor();
-    float readWeightSensor();
+    int readWeightSensor();
 
 private:
     int scale0;
     int zero;
     int calibration_value;
-    float WeightSensor_Status;
+    int WeightSensor_Status;
 };
 
 #endif

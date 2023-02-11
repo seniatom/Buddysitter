@@ -172,7 +172,7 @@ static int __init servoModule_init(void) {
     uint8_t   shift = (18 % 10) * 3;
     uint32_t  mask = BCM2835_GPIO_FSEL_MASK << shift;
     uint32_t  value = BCM2835_GPIO_FSEL_ALT5 << shift;
-	// printk(KERN_NOTICE "******** set pin %x", paddr);
+	
     bcm2835_peri_set_bits(paddr, value, mask);
 
 	/* Set clock divisor*/
@@ -182,12 +182,12 @@ static int __init servoModule_init(void) {
 	msleep(110);
 	while((*(bcm2835_clk + BCM2835_PWMCLK_CNTL) & 0x80) != 0)
 	msleep(1);
-	// printk(KERN_NOTICE "******** set clock div %x", (bcm2835_clk + BCM2835_PWMCLK_DIV));
+	
 	*(bcm2835_clk + BCM2835_PWMCLK_DIV) = (BCM2835_PWM_PASSWRD | (BCM2835_PWM_CLOCK_DIVIDER_32 << 12));
 	*(bcm2835_clk + BCM2835_PWMCLK_CNTL) = (BCM2835_PWM_PASSWRD | (0x11));  /* Source=osc and enable */
 
 	/* Set PWM channel 0 and PWM mode*/
-	// printk(KERN_NOTICE "******** set clock div %x", (bcm2835_pwm + BCM2835_PWM_CONTROL));
+	
 	uint32_t control = *(bcm2835_pwm + BCM2835_PWM_CONTROL);
 	control |= BCM2835_PWM0_MS_MODE;
 	control |= BCM2835_PWM0_ENABLE;

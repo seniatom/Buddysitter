@@ -32,6 +32,8 @@ static struct class *s_pDeviceClass;
 static struct device *s_pDeviceObject;
 struct GpioRegisters *s_pGpioRegisters;
 
+
+
 static unsigned int dout_pin = 21;	//branco 
 static unsigned int pd_sck_pin = 13;	//amarelo 
 static unsigned int t1 = 150; //to be confirmed
@@ -83,7 +85,9 @@ ssize_t hx711_device_read(struct file *pfile, char __user *p_buff,size_t len, lo
     
 	int i, ret;
 	unsigned value = 0;
-    printk(KERN_NOTICE "#####################");
+	char array[25];
+	if (len <= 0)
+        return 0;
     int val = hx711_wait_for_ready();
 
 	if (val)
@@ -96,11 +100,12 @@ ssize_t hx711_device_read(struct file *pfile, char __user *p_buff,size_t len, lo
 			value++;
 	}
     value ^= 0x800000;
+	printk(KERN_NOTICE "******** hx711 %d", value);
 
-    printk(KERN_NOTICE "exit value %d", value);
-    printk(KERN_NOTICE "######################");
+	snprintf(array, 20, "%d", value);
 
-	return 0;
+	size_t datalen = strlen(array);
+	return simple_read_from_buffer(p_buff, datalen, poffset, array, datalen);
 }
 
 int hx711_device_close(struct inode *p_inode, struct file * pfile){

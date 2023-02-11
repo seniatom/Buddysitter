@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "/home/hugo/buildroot/buildroot-2021.08/output/host/include/python3.9/Python.h"
+#include "/home/inesvdm/buildroot/buildroot_base/buildroot-2021.08/output/host/include/python3.9/Python.h"
 //#include "/usr/include/python3.10/Python.h"
 
 #define ERROR 7

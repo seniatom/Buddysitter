@@ -10,7 +10,7 @@ CMotor::~CMotor()
 
 CMotor::CMotor()
 {
-    printf("\n\nInserting Device Driver...\n");
+    printf("\n\nInserting Device Driver CMotor\n");
     system("insmod servo.ko");
 
     servo0 = open("/dev/servo0", O_WRONLY);
@@ -42,12 +42,12 @@ void CMotor::StartMotor(int i)
     char buffer [sizeof(int)];
     int count = this->GetDigits(i);
 
-    printf ("count: %d\n", count);
+    printf ("StartMotor count: %d\n", count);
 
     int buffersize = count + 1;
     snprintf(buffer, buffersize , "%d", i);
 
-    printf ("decimal: %s %d\n",buffer, count);
+    printf ("StartMotor decimal: %s %d\n",buffer, count);
     write(servo0, &buffer, count);
     
     Motor_Status = true;
@@ -55,7 +55,7 @@ void CMotor::StartMotor(int i)
 
 void CMotor::StopMotor()
 {
-    write(servo0, 0, 1);
+    write(servo0, "0", 1);
 
     Motor_Status = false;
 }

@@ -2,12 +2,13 @@
 
 CSpeaker::~CSpeaker()
 {
+    printf("\n\nRemoving Device Driver CSpeaker\n");
     system("modprobe -r snd_bcm2835");
 }
 
 CSpeaker::CSpeaker()
 {
-    printf("\n\nInserting Device Driver...\n");
+    printf("\n\nInserting Device Driver CSpeaker\n");
     system("modprobe snd_bcm2835");
 }
 
