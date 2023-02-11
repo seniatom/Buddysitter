@@ -12,7 +12,6 @@ def FirebaseInit():
     "databaseURL": "https://buddysitter-a529c-default-rtdb.europe-west1.firebasedatabase.app/",
     "storageBucket": "buddysitter-a529c.appspot.com",
     "serviceAccount": "/etc/buddysitter.json"
-    #"serviceAccount": "/home/hugo/Visual_Studio_Code/Database_Handler/example/buddysitter.json"
     }
 
     global firebase
