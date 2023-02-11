@@ -21,11 +21,11 @@ using namespace std;
 #include "CSpeaker.cpp"
 #include "CHX711.cpp"
 
-#define tChangeWifi_prio 2
+#define tChangeUser_prio 2
 #define tStartStopSpeaker_prio 2
 #define tStartStopStreaming_prio 2
 #define tStartStopMotor_prio 2
-#define tFlagCheck_prio 4//2
+#define tFlagCheck_prio 4
 #define tFeedingStatus_prio 3
 #define tCheckWeight_prio 4
 
@@ -33,17 +33,15 @@ pthread_cond_t  weight_cond         = PTHREAD_COND_INITIALIZER;
 pthread_mutex_t motor_flag_m        = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t weight_m            = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t speaker_flag_m      = PTHREAD_MUTEX_INITIALIZER;
-//pthread_mutex_t change_wifi_flag_m  = PTHREAD_MUTEX_INITIALIZER;
-//pthread_mutex_t streaming_flag_m    = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t firebase_m          = PTHREAD_MUTEX_INITIALIZER;
 
-int weight_var = 100;
+int weight_var = 0;
 int weight_aux = 0;
 
 int motor_flag = 0;
 int streaming_flag = 0;
 int speaker_flag = 0;
-int change_wifi_flag = 0;
+int change_user_flag = 0;
 
 CScheduling scheduling;
 CDatabaseHandler dbhandler;
@@ -53,8 +51,6 @@ CSpeaker speaker;
 CHX711 sensor;
 
 char userId[30]; //= "YW7b3hkFsaTo7qfU5gZ5tyHJ85v2";
-char main_email[] = "main.admin@buddysitter.com";
-char main_password[] = "123456";
 
 void SetupThread(int prio,pthread_attr_t *pthread_attr,struct sched_param *pthread_param);
 void CheckFail(int status);
@@ -77,23 +73,23 @@ switch(sig) {
     }
 }
 
-void *tChangeWifi (void *arg)
+void *tChangeUser (void *arg)
 {
     while(1)
     {
-        if(change_wifi_flag == 1)
+        if(change_user_flag == 1)
         {
             WriteFile("0");
             exit(1);
         }
         sleep(1);
     }
-	return NULL;
+    return NULL;
 }
 
 void *tStartStopSpeaker (void *arg)
 {
-	while(1)
+    while(1)
     {
         if(speaker_flag != 0)
         {
@@ -111,7 +107,7 @@ void *tStartStopSpeaker (void *arg)
             pthread_mutex_unlock(&speaker_flag_m);
         }
     }
-	return NULL;
+    return NULL;
 }
 
 void *tStartStopStreaming (void *arg)
@@ -129,12 +125,12 @@ void *tStartStopStreaming (void *arg)
             printf("stop streaming\n");
         }
     }
-	return NULL;
+    return NULL;
 }
 
 void *tStartStopMotor (void *arg)
 {
-	while(1)
+    while(1)
     {
         if(motor_flag == 1 && motor.MotorStatus() == false)
         {
@@ -147,17 +143,17 @@ void *tStartStopMotor (void *arg)
             printf("stop motor\n");
         }
     }
-	return NULL;
+    return NULL;
 }
 
 void *tFlagCheck (void *arg) //Updates flags from database
 {
-	while(1)
+    while(1)
     {
         pthread_mutex_lock(&firebase_m);
         int streaming_flag_aux = dbhandler.GetStreamingFlag();
         int speaker_flag_aux = dbhandler.GetSpeakerFlag();
-        int change_wifi_flag_aux = dbhandler.GetChangeWifiFlag();
+        int change_user_flag_aux = dbhandler.GetChangeUserFlag();
         pthread_mutex_unlock(&firebase_m);
 
         streaming_flag = streaming_flag_aux;
@@ -166,13 +162,13 @@ void *tFlagCheck (void *arg) //Updates flags from database
         speaker_flag = speaker_flag_aux;
         //printf("speaker_f: %d\n", speaker_flag);
         pthread_mutex_unlock(&speaker_flag_m);
-        change_wifi_flag = change_wifi_flag_aux;
-        //printf("change_wifi_f: %d\n", change_wifi_flag);
+        change_user_flag = change_user_flag_aux;
+        //printf("change_user_f: %d\n", change_user_flag);
 
 
         sleep(1);
     }
-	return NULL;
+    return NULL;
 }
 
 
@@ -195,43 +191,39 @@ void *tFeedingStatus (void *arg) //Checks for messages in msqueue
         }
         sleep(1);
     }
-	return NULL;
+    return NULL;
 }
 
 void *tCheckWeight (void *arg)
 {
-	while(1)
-    {  
-        if(motor_flag == true)
-        {
-            pthread_mutex_lock(&weight_m);
-            weight_var++;
-            pthread_mutex_unlock(&weight_m);
-        }
-        //printf("%d\n", weight_var);
-        //weight_var = sensor.ReadWeightSample();
-        if((weight_var >= weight_aux) && motor_flag == true)
+    while(1)
+    { 
+        pthread_mutex_lock(&weight_m);
+        weight_var = sensor.ReadWeightSample();
+	printf("%d\n", weight_var);
+	pthread_mutex_unlock(&weight_m);
+	    
+        if((weight_var >= weight_aux) && motor.MotorStatus() == true)
         {
             pthread_cond_signal(&weight_cond); //unBlocks FeedingStatus if weight achieved
         }
         sleep(1);
     }
-	return NULL;
+    return NULL;
 }
 
 int main (int argc, char *argv[])
 {
-	int thread_policy;
+    int thread_policy;
     int status;
-	pthread_t ChangeWifiID, StartStopSpeakerID, StartStopStreamingID, StartStopMotorID, FlagCheckID, FeedingStatusID, CheckWeightID;
+    pthread_t ChangeUserID, StartStopSpeakerID, StartStopStreamingID, StartStopMotorID, FlagCheckID, FeedingStatusID, CheckWeightID;
 
-	pthread_attr_t thread_attr;
-	struct sched_param thread_param;
+    pthread_attr_t thread_attr;
+    struct sched_param thread_param;
 	
-    //setenv("PYTHONPATH","/home/hugo/Visual_Studio_Code/python", 1);
-    setenv("PYTHONPATH","/etc/python_code", 1);
+    setenv("PYTHONPATH","/etc/python_code", 1); //set pythonpath to script directory
 
-    if(ReadFile() == "0")
+    if(ReadFile() == "0") //check if device paired
     {
         char id[30];
         //bluetooth implementation
@@ -242,62 +234,62 @@ int main (int argc, char *argv[])
         printf("User Id: %s\n", userId);
     }
 
-    if(!dbhandler.FirebaseInit())
+    if(!dbhandler.FirebaseInit()) //Initialize Firebase
     {
         printf("init error");
         return 0;
     }
-    if(!dbhandler.LoginUser(userId))
+    if(!dbhandler.LoginUser(userId)) //Pass userId
     {
         printf("login error");
         return 0;
     }
-
-    //system("./dScheduledTimes");
-    system("./daemonrasp");
+	
+    system("./dScheduledTimes //Open Daemon
 
     signal(SIGTERM,signal_handler);
-
-	pthread_attr_init (&thread_attr);
-	pthread_attr_getschedpolicy (&thread_attr, &thread_policy);
-	pthread_attr_getschedparam (&thread_attr, &thread_param);
+	   
+    /*Create Threads*/	   
+    pthread_attr_init (&thread_attr);
+    pthread_attr_getschedpolicy (&thread_attr, &thread_policy);
+    pthread_attr_getschedparam (&thread_attr, &thread_param);
 	
-	SetupThread(tCheckWeight_prio,&thread_attr,&thread_param);
-	pthread_attr_setinheritsched (&thread_attr, PTHREAD_EXPLICIT_SCHED);
-	status = pthread_create (&CheckWeightID, &thread_attr, tCheckWeight, NULL);
+    SetupThread(tCheckWeight_prio,&thread_attr,&thread_param);
+    pthread_attr_setinheritsched (&thread_attr, PTHREAD_EXPLICIT_SCHED);
+    status = pthread_create (&CheckWeightID, &thread_attr, tCheckWeight, NULL);
     CheckFail(status);
 
     SetupThread(tFeedingStatus_prio,&thread_attr,&thread_param);
-	pthread_attr_setinheritsched (&thread_attr, PTHREAD_EXPLICIT_SCHED);
-	status = pthread_create (&FeedingStatusID, &thread_attr, tFeedingStatus, NULL);
+    pthread_attr_setinheritsched (&thread_attr, PTHREAD_EXPLICIT_SCHED);
+    status = pthread_create (&FeedingStatusID, &thread_attr, tFeedingStatus, NULL);
     CheckFail(status);
 
     SetupThread(tFlagCheck_prio,&thread_attr,&thread_param);
-	pthread_attr_setinheritsched (&thread_attr, PTHREAD_EXPLICIT_SCHED);
-	status = pthread_create (&FlagCheckID, &thread_attr, tFlagCheck, NULL);
+    pthread_attr_setinheritsched (&thread_attr, PTHREAD_EXPLICIT_SCHED);
+    status = pthread_create (&FlagCheckID, &thread_attr, tFlagCheck, NULL);
     CheckFail(status);
 
     SetupThread(tStartStopMotor_prio,&thread_attr,&thread_param);
-	pthread_attr_setinheritsched (&thread_attr, PTHREAD_EXPLICIT_SCHED);
-	status = pthread_create (&StartStopMotorID, &thread_attr, tStartStopMotor, NULL);
+    pthread_attr_setinheritsched (&thread_attr, PTHREAD_EXPLICIT_SCHED);
+    status = pthread_create (&StartStopMotorID, &thread_attr, tStartStopMotor, NULL);
     CheckFail(status);
 
     SetupThread(tStartStopStreaming_prio,&thread_attr,&thread_param);
-	pthread_attr_setinheritsched (&thread_attr, PTHREAD_EXPLICIT_SCHED);
-	status = pthread_create (&StartStopStreamingID, &thread_attr, tStartStopStreaming, NULL);
+    pthread_attr_setinheritsched (&thread_attr, PTHREAD_EXPLICIT_SCHED);
+    status = pthread_create (&StartStopStreamingID, &thread_attr, tStartStopStreaming, NULL);
     CheckFail(status);
 
     SetupThread(tStartStopSpeaker_prio,&thread_attr,&thread_param);
-	pthread_attr_setinheritsched (&thread_attr, PTHREAD_EXPLICIT_SCHED);
-	status = pthread_create (&StartStopSpeakerID, &thread_attr, tStartStopSpeaker, NULL);
+    pthread_attr_setinheritsched (&thread_attr, PTHREAD_EXPLICIT_SCHED);
+    status = pthread_create (&StartStopSpeakerID, &thread_attr, tStartStopSpeaker, NULL);
     CheckFail(status);
 
     SetupThread(tChangeWifi_prio,&thread_attr,&thread_param);
-	pthread_attr_setinheritsched (&thread_attr, PTHREAD_EXPLICIT_SCHED);
-	status = pthread_create (&ChangeWifiID, &thread_attr, tChangeWifi, NULL);
+    pthread_attr_setinheritsched (&thread_attr, PTHREAD_EXPLICIT_SCHED);
+    status = pthread_create (&ChangeWifiID, &thread_attr, tChangeWifi, NULL);
     CheckFail(status);
 
-	while(1)
+    while(1)
     {}
 }
 
