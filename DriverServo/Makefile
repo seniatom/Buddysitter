@@ -1,9 +1,9 @@
 obj-m := servo.o
 servo-objs:=servomodule.o
-KDIR := /home/inesvdm/buildroot/buildroot-2021.08/output/build/linux-custom
+KDIR := /home/inesvdm/buildroot/buildroot_base/buildroot-2021.08/output/build/linux-custom
 ARCH ?= arm64
 
-CROSS_COMPILE ?= /home/inesvdm/buildroot/buildroot-2021.08/output/host/bin/aarch64-buildroot-linux-uclibc-
+CROSS_COMPILE ?= /home/inesvdm/buildroot/buildroot_base/buildroot-2021.08/output/host/bin/aarch64-buildroot-linux-uclibc-
   
 
 export ARCH CROSS_COMPILE

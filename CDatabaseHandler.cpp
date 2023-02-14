@@ -8,8 +8,8 @@ CDatabaseHandler::~CDatabaseHandler()
 int CDatabaseHandler::FirebaseInit()
 {
     //setenv("PYTHONPATH","/home/hugo/Visual_Studio_Code/python", 1);
+    setenv("PYTHONPATH", ".", 1);
     Py_InitializeEx(0);
-
     pName = PyUnicode_FromString((char*)"DatabaseHandler");
 
     pModule = PyImport_Import(pName);
@@ -106,7 +106,7 @@ bool CDatabaseHandler::CompareTimes(int year, int month, int day, int hour, int 
     }
 
     int ret = (int)PyLong_AsLong(pReturn);
-
+    /*test code*/
     Py_XDECREF(pReturn);
 
     if(ret == 0)
@@ -131,7 +131,7 @@ bool CDatabaseHandler::GetStreamingFlag()
 
     Py_XDECREF(pReturn);
 
-    return flag;
+    return (flag == 1); //avoid error values being implicitly cast to true
 }
 
 bool CDatabaseHandler::GetSpeakerFlag()
@@ -147,7 +147,7 @@ bool CDatabaseHandler::GetSpeakerFlag()
 
     Py_XDECREF(pReturn);
 
-    return flag;
+    return (flag == 1); //avoid error values being implicitly cast to true
 }
 
 bool CDatabaseHandler::GetChangeWifiFlag()
@@ -163,6 +163,6 @@ bool CDatabaseHandler::GetChangeWifiFlag()
 
     Py_XDECREF(pReturn);
 
-    return flag;
+    return (flag == true); //avoid error values being implicitly cast to true
 }
 

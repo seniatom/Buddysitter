@@ -15,7 +15,7 @@ public:
     ~CMotor();
     CMotor();
     int GetDigits(int num);
-    void StartMotor(int i = 215);
+    void StartMotor(int i = 800);
     void StopMotor();
     bool MotorStatus();
 

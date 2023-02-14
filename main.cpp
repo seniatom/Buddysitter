@@ -15,6 +15,10 @@
 using namespace std;
 
 #include "CScheduling.h"
+#include "CStreaming.h"
+#include "CMotor.h"
+#include "CSpeaker.h"
+#include "CWeightSensor.h"
 #include "CDatabaseHandler.h"
 #define tStartupSystem_prio 1
 #define tChangeWifi_prio 2
@@ -59,7 +63,8 @@ void WriteFile(string id);
 void signal_handler(int sig) {
 switch(sig) {
     case SIGTERM:
-        syslog(LOG_INFO,"terminate signal catched");
+    case SIGINT:
+        syslog(LOG_INFO,"terminate signal cought");
         motor.StopMotor();
         stream.StopStreaming();
         exit(0);
@@ -71,6 +76,7 @@ void *tStartupSystem (void *)
     while(1)
     {
         //maybe do scale calibratioN ?
+        sleep(60);
     }
 
 	return NULL;
@@ -85,6 +91,7 @@ void *tChangeWifi (void *arg)
             WriteFile("0");
             exit(1);
         }
+        sleep(1); 
     }
 	return NULL;
 }
@@ -101,6 +108,7 @@ void *tStartStopSpeaker (void *arg)
         {
            // speaker.StopSpeaker();
         }
+        sleep(1); 
     }
 	return NULL;
 }
@@ -119,6 +127,7 @@ void *tStartStopStreaming (void *arg)
             stream.StopStreaming();
             printf("stop streaming\n");
         }
+        sleep(1); 
     }
 	return NULL;
 }
@@ -138,6 +147,7 @@ void *tStartStopMotor (void *arg)
             motor.StopMotor();
             printf("stop motor\n");
         }
+        sleep(1); 
     }
 	return NULL;
 }
@@ -146,17 +156,17 @@ void *tFlagCheck (void *arg) //Updates flags from database
 {
 	while(1)
     {
-        pthread_mutex_lock(&streaming_flag_m);
-        streaming_flag = dbhandler.GetStreamingFlag();
-        pthread_mutex_unlock(&streaming_flag_m);
+        // pthread_mutex_lock(&streaming_flag_m);
+        // streaming_flag = dbhandler.GetStreamingFlag();
+        // pthread_mutex_unlock(&streaming_flag_m);
 
-        pthread_mutex_lock(&speaker_flag_m);
-        speaker_flag = dbhandler.GetStreamingFlag();
-        pthread_mutex_unlock(&speaker_flag_m);
+        // pthread_mutex_lock(&speaker_flag_m);
+        // speaker_flag = dbhandler.GetSpeakerFlag();
+        // pthread_mutex_unlock(&speaker_flag_m);
 
-        pthread_mutex_lock(&change_wifi_flag_m);
-        change_wifi_flag = dbhandler.GetStreamingFlag();
-        pthread_mutex_unlock(&change_wifi_flag_m);
+        // pthread_mutex_lock(&change_wifi_flag_m);
+        // change_wifi_flag = dbhandler.GetChangeWifiFlag();
+        // pthread_mutex_unlock(&change_wifi_flag_m);
 
         sleep(1); 
     }
@@ -171,7 +181,7 @@ void *tFeedingStatus (void *arg) //Checks for messages in msqueue
         if(scheduling.MsgQueueRecieve() == true) //Checks for messages in mqueue
         {
             target_weight = scheduling.GetWeight(); //loads weight_aux with desired weight
-            printf("weight: %d\n",target_weight);
+            printf("target weight: %d\n",target_weight);
         
             pthread_mutex_lock(&motor_flag_m); 
             motor_flag = true;
@@ -181,20 +191,25 @@ void *tFeedingStatus (void *arg) //Checks for messages in msqueue
             printf("motor_flag = false\n");
             pthread_mutex_unlock(&motor_flag_m);
         }
+        sleep(1);
     }
 	return NULL;
 }
 
 void *tCheckWeight (void *arg)
-{
+{    
 	while(1)
     {  
         pthread_mutex_lock(&weight_m);
         //read from sensor like I did on example of hx711
-        current_weight = scale.readWeightSensor();
-        if(current_weight > target_weight && motor_flag == true)
+        printf("tCheckWeight %d", motor_flag);
+        if(motor_flag == true)
         {
-            pthread_cond_signal(&weight_cond); //unBlocks FeedingStatus if weight achieved
+            current_weight = scale.readWeightSensor();
+            if(current_weight > target_weight)
+            {
+                pthread_cond_signal(&weight_cond); //unBlocks FeedingStatus if weight achieved
+            }
         }
         pthread_mutex_unlock(&weight_m);
         sleep(1);
@@ -239,6 +254,7 @@ int main (int argc, char *argv[])
     system("./dScheduledTimes");
 
     signal(SIGTERM,signal_handler);
+    signal(SIGINT,signal_handler);
 
 	pthread_attr_init (&thread_attr);
 	pthread_attr_getschedpolicy (&thread_attr, &thread_policy);
@@ -285,7 +301,9 @@ int main (int argc, char *argv[])
     CheckFail(status);
 
 	while(1)
-    {}
+    {
+        sleep(60);
+    }
 }
 
 void SetupThread(int prio,pthread_attr_t *pthread_attr,struct sched_param *pthread_param)

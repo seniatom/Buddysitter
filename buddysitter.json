@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "buddysitter-a529c",
+  "private_key_id": "4ae8c3c37dea2cfff1d337d30e1aa2007e25f915",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDsjCT5pjBIh8Y7\nVlAK8x8Az6cTk/FWblYhSAkZSx8+/OHaG2gOV7lvpT6xb/2TRixfx6Ow52ZTVsm8\nxPSxPs2P1u12kAUekTl0FR9Fmfit34wzs3V1TjAlYASq0WPelu1wU+lL7M7gfYOz\n5cw4COE0CMXi7K9uk9iH5pfcZ3JNsYN+nwiE9L3Hib+hxPOjI1/50nmw7naoiDNt\nacdtr3c/gE3xaV/T4gMnhpYHf1r7CLrRuMHaXHH34xaBnK2u7lLEz/0GfQZxXdQo\nQhmwEgooUB2o2cgNvgVDCe+L+hUhkd4mPlbR0dk7EgQsPFPGrATzb4zXLE+uSu8y\nyGUMoJB3AgMBAAECggEAA9xsMPiMhVGqePGVxzcWW6EWSnKvIn34cu67WmZIVshA\nPtP4eHMEcwNZweWSdL2OGN3oEbRPADavKUvMJgILeeqgrjEiY15lWvT8MWjr63zZ\ndmM9/9jI0IJ44QfKQs12pCStJ8nTy0u0vCCY1AfDS/BM8UE6wkZ3n/Cx5RgH1adW\n5nVDOXOJmE6puG8gHYaDIKH09Siq5neCezUhSgyA5d542P7rJl5I4B9A6CPL89tc\nzByMvCaPnBj2BEnw3nAT/ru5bJpMxCAl7/6HAQ6GmjzjZTU7/PqBWJnB/tvMPi3r\nJBtqNyrRcWW8C9Z/Va7HGDsuwyI41VMQ3oSoSXBoQQKBgQD+6eW3uEIh/2LDkOTG\nykWFM0ARE0aG2UdhV7ciRdpC5b5Xvpf7ta6S5K4d36Wv8ScZWf6RLNX6UhTy9yZ1\n884SjpaXBG3ddUZcaYix82wOxnHo1sy5zAA2th3GkYUYrJpMFNyC5gJVJocfzfAD\nZFx2JOXW4AxbMm2bRvIJGNv9twKBgQDtjjXLlUzZUqPtPr3Ev8ZJEKICS2UZxvBK\nWtHc91QDlmpEgH3V4hvY+8c38ERu9ePCzhpuabOs5aieb37xB35HEGnINU/cDLfL\nGUX2hWLbJQtg2DqVuW1ELL8UV8XIn8rVzRIxHUz/J+ym94PwnXlstzRzL/c9VKeH\nXfUXXZQDQQKBgFNWwMWJtgVLa0yoqELdilD76mwqsxoPGykV9kd8MtlAJzSkmSev\nxD0+Cja2EYMuAixlobZwxBwsjbDJYIebh7nFaDJDPm/ykWhREGGtRZynAEKxRwlP\nSpqYe6+Zj7v7Yg6Rm24oKIcSK4cYWumg/CGb+pB/e0qtd+wWC7cxq2qNAoGBAIxs\nR/hz5N2CMEyJjfvDsR53qozYrIa0Rk5tqSiJOyxzuZWMrtXDttpo2raCXLGKwHvj\nAVTLPt6xUx90oQExgL/ZP+6NNQvKqMpxwh2bc3g/SZ6Rsu/WkHSATuNjjxKtAmWn\nt105CM67dvSr015kd+Z/1Y1RiUDDzdQDAmIxetEBAoGBALLemAHqN0xkWI23GhQk\n0ywFEAXH74ALwj08X0ZIxTAMbHvq834enY853VGF0boFCrxmRCq/tNBLvJ/YHXB1\nvxnu6vu9RWxsRKde9bqe5RFEBFTRZtV+bYiphlopec7eRrpAeGQ7DWtLp3Pp4Bw2\nmxyl8RgE38xFUl8mRbCmuNQ/\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-uxkch@buddysitter-a529c.iam.gserviceaccount.com",
+  "client_id": "116755473073243621113",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-uxkch%40buddysitter-a529c.iam.gserviceaccount.com"
+}
